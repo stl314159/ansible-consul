@@ -1,16 +1,16 @@
 ---
 # File: install.yml - package installation tasks for Consul
 
-- name: Install OS packages
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ consul_os_packages }}"
-  tags: installation
+# - name: Install OS packages
+#   package:
+#     name: "{{ item }}"
+#     state: present
+#   with_items: "{{ consul_os_packages }}"
+#   tags: installation
 
 - name: Read package checksum file
   stat:
-    path: "{{ role_path }}/files/consul_{{ consul_version }}_SHA256SUMS"
+    path: "{{ playbook_dir }}/files/consul_{{ consul_version }}_SHA256SUMS"
   become: false
   vars:
     ansible_become: false
@@ -19,20 +19,20 @@
   tags: installation
   delegate_to: 127.0.0.1
 
-- name: Download package checksum file
-  get_url:
-    url: "{{ consul_checksum_file_url }}"
-    dest: "{{ role_path }}/files/consul_{{ consul_version }}_SHA256SUMS"
-  become: false
-  vars:
-    ansible_become: false
-  run_once: true
-  tags: installation
-  when: not consul_checksum.stat.exists | bool
-  delegate_to: 127.0.0.1
+# - name: Download package checksum file
+#   get_url:
+#     url: "{{ consul_checksum_file_url }}"
+#     dest: "{{ role_path }}/files/consul_{{ consul_version }}_SHA256SUMS"
+#   become: false
+#   vars:
+#     ansible_become: false
+#   run_once: true
+#   tags: installation
+#   when: not consul_checksum.stat.exists | bool
+#   delegate_to: 127.0.0.1
 
 - name: Read package checksum
-  shell: grep "{{ consul_pkg }}" "{{ role_path }}/files/consul_{{ consul_version }}_SHA256SUMS" | awk '{print $1}'
+  shell: grep "{{ consul_pkg }}" "{{ playbook_dir }}/files/consul_{{ consul_version }}_SHA256SUMS" | awk '{print $1}'
   become: false
   vars:
     ansible_become: false
@@ -45,7 +45,7 @@
 
 - name: Check Consul package file
   stat:
-    path: "{{ role_path }}/files/{{ consul_pkg }}"
+    path: "{{ playbook_dir }}/files/{{ consul_pkg }}"
   become: false
   vars:
     ansible_become: false
@@ -54,20 +54,20 @@
   run_once: true
   delegate_to: 127.0.0.1
 
-- name: Download Consul package
-  get_url:
-    url: "{{ consul_zip_url }}"
-    dest: "{{ role_path }}/files/{{ consul_pkg }}"
-    checksum: "sha256:{{ consul_sha256.stdout }}"
-    timeout: "42"
-  become: false
-  vars:
-    ansible_become: false
-  tags: installation
-  when: not consul_package.stat.exists | bool
-  run_once: true
-  delegate_to: 127.0.0.1
-  ignore_errors: "{{ ansible_check_mode }}"
+# - name: Download Consul package
+#   get_url:
+#     url: "{{ consul_zip_url }}"
+#     dest: "{{ role_path }}/files/{{ consul_pkg }}"
+#     checksum: "sha256:{{ consul_sha256.stdout }}"
+#     timeout: "42"
+#   become: false
+#   vars:
+#     ansible_become: false
+#   tags: installation
+#   when: not consul_package.stat.exists | bool
+#   run_once: true
+#   delegate_to: 127.0.0.1
+#   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Update Alpine Package Manager (APK)
   apk:
@@ -90,7 +90,7 @@
 
 - name: Unarchive Consul package
   unarchive:
-    src: "{{ role_path }}/files/{{ consul_pkg }}"
+    src: "{{ playbook_dir }}/files/{{ consul_pkg }}"
     dest: "{{ install_temp.path }}/"
     creates: "{{ install_temp.path }}/consul"
   become: false
